@@ -1,29 +1,17 @@
-# coin-flip-server MCP Server
+# Coin Flip MCP Server
 
-Flips a coin.
-
-This is a TypeScript-based MCP server that implements a simple notes system. It demonstrates core MCP concepts by providing:
-
-- Resources representing text notes with URIs and metadata
-- Tools for creating new notes
-- Prompts for generating summaries of notes
+An MCP server that provides true random coin flips using random.org's randomness API. This server demonstrates the Model Context Protocol by providing a tool for generating random outcomes with configurable sides.
 
 ## Features
 
-### Resources
-- List and access notes via `note://` URIs
-- Each note has a title, content and metadata
-- Plain text mime type for simple content access
-
 ### Tools
-- `create_note` - Create new text notes
-  - Takes title and content as required parameters
-  - Stores note in server state
-
-### Prompts
-- `summarize_notes` - Generate a summary of all stored notes
-  - Includes all note contents as embedded resources
-  - Returns structured prompt for LLM summarization
+- `flip_coin` - Flip a coin with configurable number of sides
+  - Optional `sides` parameter (default: 2)
+  - Uses true randomness from random.org
+  - Special handling for edge cases (0, 1, or negative sides)
+  - For 2 sides: Returns "Heads" or "Tails"
+  - For 3 sides: Returns "Heads", "Tails", or "_"
+  - For n>3 sides: Returns "It landed on side X"
 
 ## Development
 
@@ -46,25 +34,42 @@ npm run watch
 
 To use with Claude Desktop, add the server config:
 
-On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`  
 On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
-    "coin-flip-server": {
-      "command": "/path/to/coin-flip-server/build/index.js"
+    "coin-flip": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-coin-flip"]
     }
   }
 }
 ```
 
-### Debugging
+## Example Usage
 
-Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:
+Once connected to an MCP client like Claude Desktop, you can use natural language to interact with the coin flip tool. For example:
+
+- "Flip a coin"
+- "Roll a 6-sided die"
+- "Give me a random number between 1 and 20"
+
+The server will use true randomness from random.org to generate the result.
+
+## Debugging
+
+Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector):
 
 ```bash
-npm run inspector
+npx @modelcontextprotocol/inspector node build/index.js
 ```
 
-The Inspector will provide a URL to access debugging tools in your browser.
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT
