@@ -5,7 +5,14 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
+  McpError,
+  ErrorCode,
 } from "@modelcontextprotocol/sdk/types.js";
+
+interface FlipCoinArgs {
+  sides?: number;
+  sideNames?: string[];
+}
 import axios from "axios";
 
 // Create an MCP server with tool capabilities
@@ -27,13 +34,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "flip_coin",
-        description: "Flip a coin with n sides using true randomness from random.org",
+        description: "Flip a coin with n sides using true randomness from random.org. For 3-sided coins, try creative side names like:\n- past/present/future (temporal analysis)\n- true/unknown/false (epistemic states)\n- win/draw/lose (outcome evaluation)\n- rock/paper/scissors (cyclic relationships)\n- less/same/more (abstraction levels)\n- below/within/above (hierarchical positioning)\n- predecessor/current/successor (ordinal progression)\n\nMeta-usage patterns:\n1. Use less/same/more to guide abstraction level of discourse\n2. Use past/present/future to determine temporal focus\n3. Chain multiple flips to create decision trees\n4. Use predecessor/current/successor for ordinal analysis\n\nOrdinal Meta-patterns:\n- Use predecessor to refine previous concepts\n- Use current to stabilize existing patterns\n- Use successor to evolve into new forms\n\nDefault ternary values are -/0/+",
         inputSchema: {
           type: "object",
           properties: {
             sides: {
               type: "number",
-              description: "Number of sides (default: 2)"
+              description: "Number of sides (default: 3)"
+            },
+            sideNames: {
+              type: "array",
+              items: {
+                type: "string"
+              },
+              description: "Optional custom names for sides (must match number of sides)"
             }
           }
         }
@@ -45,13 +59,22 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 // Handler for the flip_coin tool
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name !== "flip_coin") {
-    throw new Error("Unknown tool");
+    throw new McpError(ErrorCode.MethodNotFound, "Unknown tool");
   }
 
   try {
-    const sides = typeof request.params.arguments?.sides === 'number' 
-      ? request.params.arguments.sides 
-      : 2;
+    const args = request.params.arguments as FlipCoinArgs;
+    const sides = args.sides ?? 3;
+    const sideNames = args.sideNames;
+    if (sideNames && sideNames.length !== sides) {
+      return {
+        isError: true,
+        content: [{
+          type: "text",
+          text: `Number of side names (${sideNames.length}) must match number of sides (${sides})`
+        }]
+      };
+    }
     
     // Validate and handle special cases that don't need random.org
     if (sides === 0) {
@@ -98,12 +121,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const result = parseInt(response.data);
     let output: string;
 
-    if (sides === 2) {
-      output = result === 1 ? "Heads" : "Tails";
+    if (sideNames) {
+      output = sideNames[result - 1].toLowerCase();
+    } else if (sides === 2) {
+      output = result === 1 ? "heads" : "tails";
     } else if (sides === 3) {
-      output = result === 1 ? "Heads" : result === 2 ? "Tails" : "_";
+      output = result === 1 ? "-" : result === 2 ? "0" : "+";
     } else {
-      output = `It landed on side ${result}`;
+      output = `side ${result}`;
     }
 
     return {
