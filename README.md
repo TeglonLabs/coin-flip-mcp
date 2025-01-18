@@ -2,6 +2,8 @@
 
 An MCP server that provides true random coin flips using random.org's randomness API. This server demonstrates the Model Context Protocol by providing a tool for generating random outcomes with configurable sides.
 
+<a href="https://glama.ai/mcp/servers/f57ohq0c54"><img width="380" height="200" src="https://glama.ai/mcp/servers/f57ohq0c54/badge" alt="Coin Flip Server MCP server" /></a>
+
 ## Features
 
 ### Tools
