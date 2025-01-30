@@ -1,5 +1,7 @@
 # Coin Flip MCP Server
 
+[![smithery badge](https://smithery.ai/badge/coin-flip-server)](https://smithery.ai/server/coin-flip-server)
+
 An MCP server that provides true random coin flips using random.org's randomness API. This server demonstrates the Model Context Protocol by providing a tool for generating random outcomes with configurable sides.
 
 ## Features
@@ -31,7 +33,15 @@ npm run watch
 ```
 
 ## Installation
+### Installing via Smithery
 
+To install Coin Flip for Claude Desktop automatically via [Smithery](https://smithery.ai/server/coin-flip-server):
+
+```bash
+npx -y @smithery/cli install coin-flip-server --client claude
+```
+
+### Installing Manually
 To use with Claude Desktop, add the server config:
 
 On MacOS: `~/Library/Application Support/Claude/claude_desktop_config.json`  
